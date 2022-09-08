@@ -1,6 +1,8 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, PropertyValueMap } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
+import { debounce } from "../../helpers";
+import { getPokemon } from "../../api";
 
 @customElement("pkmon-home")
 export class HomePage extends LitElement {
@@ -27,14 +29,24 @@ export class HomePage extends LitElement {
   @property({ attribute: false, type: Array }) _pokemons = [];
   @query("input", true) _search!: HTMLInputElement;
 
-  onSearch(e: InputEvent) {
-    e.preventDefault;
-    this._input = this._search.value.trim();
+  async onSearch(e: InputEvent) {
+    e.preventDefault();
+    const search = this._search.value.trim();
+
+    this._pokemons = await getPokemon(search);
+
+    console.log(this._pokemons);
+
+    this.requestUpdate();
   }
 
   render() {
     return html`<div>
-      <input id="search" .value=${this._input} @input=${this.onSearch} />
+      <input
+        id="search"
+        .value=${this._input}
+        @input=${debounce(this.onSearch)}
+      />
       <p>${this._input}</p>
       <div>
         ${this._pokemons?.length > 0
