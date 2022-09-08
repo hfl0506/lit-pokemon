@@ -1,5 +1,5 @@
 import { LitElement, html, css } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 @customElement("pkmon-card")
 export class PkmonCard extends LitElement {
@@ -13,8 +13,26 @@ export class PkmonCard extends LitElement {
       align-items: center;
     }
   `;
+
+  @property({ attribute: "data", type: Object }) pokemonData = {};
+
   render() {
-    return html` <div class="card-wrapper"></div> `;
+    return html`
+      <div class="card-wrapper">
+        <div>
+          <label>Name: </label>
+          <span></span>
+        </div>
+        <div>
+          <label>Attribute: </label>
+          <span></span>
+        </div>
+        <div>
+          <label>Abilities</label>
+          <span></span>
+        </div>
+      </div>
+    `;
   }
 }
 
