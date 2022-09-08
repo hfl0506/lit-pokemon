@@ -1,13 +1,14 @@
-import { LitElement, html, css, PropertyValueMap } from "lit";
+import { LitElement, html, css } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
-import { map } from "lit/directives/map.js";
 import { debounce } from "../../helpers";
 import { getPokemon } from "../../api";
+import { PokemonInfo } from "../../interface";
+import "../../components/pkmon-card.js";
 
 @customElement("pkmon-home")
 export class HomePage extends LitElement {
   static styles = css`
-    :host {
+    div {
       display: flex;
       flex-direction: column;
       width: 100%;
@@ -26,16 +27,21 @@ export class HomePage extends LitElement {
   `;
 
   @property({ attribute: false }) _input: string = "";
-  @property({ attribute: false, type: Array }) _pokemons = [];
+  @property({ attribute: false, type: Object }) _pokemon = {} as PokemonInfo;
   @query("input", true) _search!: HTMLInputElement;
 
   async onSearch(e: InputEvent) {
     e.preventDefault();
+
     const search = this._search.value.trim();
 
-    this._pokemons = await getPokemon(search);
+    const data = await getPokemon(search);
 
-    console.log(this._pokemons);
+    if (data === undefined) return;
+
+    this._pokemon = data;
+
+    console.log(this._pokemon);
 
     this.requestUpdate();
   }
@@ -47,17 +53,9 @@ export class HomePage extends LitElement {
         .value=${this._input}
         @input=${debounce(this.onSearch)}
       />
-      <p>${this._input}</p>
-      <div>
-        ${this._pokemons?.length > 0
-          ? map(
-              this._pokemons,
-              (pokemon, idx) => html`
-                <pkmon-card key=${idx} .data=${pokemon}></pkmon-card>
-              `
-            )
-          : html` <p>No Pokemon Found...</p> `}
-      </div>
+      ${Object.keys(this._pokemon).length > 0
+        ? html` <pkmon-card .pokemonData=${this._pokemon}></pkmon-card> `
+        : html` <p>No Pokemon found...</p> `}
     </div>`;
   }
 }
